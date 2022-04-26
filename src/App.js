@@ -10,35 +10,117 @@
 
 
 
-import React from 'react';
-import './App.css';
-import "./Authentic.css"
-import LoginButton from './components/LoginButton'
-import LogoutButton from './components/LogoutButton'
-import Profile from "./components/Profile"
-import { useAuth0 } from "@auth0/auth0-react"
+
+
+import "./App.css"
+import React, { useState,useEffect } from 'react'
+import NotesList from './components/NotesList'
+import {nanoid} from 'nanoid'
+import Search from './components/Search';
+import Header from './components/Header';
+
 
 function App() {
-    const { isLoading } = useAuth0()
-	if (isLoading) return <div>Loading...</div>
-	return (
+     
+	const [notes, setNotes] = useState([ 
+		{
+		id: nanoid(),
+		text:"This is my first note",
+		date:"03/11/2021"
+	  },
+	  {
+		id: nanoid(),
+		text:"This is my second note",
+		date:"03/11/2021"
+	  },
+	  {
+		id: nanoid(),
+		text:"This is my third note",
+		date:"03/11/2021"
+	  },
+	 
+	])
 
-	  <>
-		<head className='buttons'>
-		  <LoginButton  />
-		  <LogoutButton  />
-		  < Profile />
-		</head>
-       <main>
-         <div>
-			 Hello
-		 </div>
+	const [searchNote,setSearchNote] = useState('');
+    const [darkMode,setDarkMode] = useState(false)
+
+	useEffect( f => {
+		const savedNotes = JSON.parse(localStorage.getItem("notes"))
+
+		if(savedNotes) {
+			setNotes(savedNotes)
+		}
+	}, [])
+
+   useEffect( f => {
+	   localStorage.setItem("notes", JSON.stringify(notes))
+   }, [notes])
+
+   const addNote = text => {
+
+	   const date = new Date()
+	   const newNote = {
+		   id: nanoid(),
+		   text: text,
+		   date: date.toLocaleDateString()
+	   }
+	   const newNotes = [...notes, newNote]
+	   setNotes(newNotes)
+   }
+
+   const deleteNote = id => {
+	   const newNotes = notes.filter( note => note.id !== id)
+	   setNotes(newNotes)
+   }
+
+	return ( 
+           <div className={`${darkMode && "dark-mode"}`}>
+               <div className="containter">
+				   <Header DarkMode={setDarkMode} />
+				   <Search Search={setSearchNote} />
+				   <NotesList notes={notes.filter(note => note.text.toLowerCase().includes(searchNote))} 
+				   addNote={addNote} 
+				   Delete={deleteNote} />
+			   </div>
+		   </div>
+	 );
+}
+
+export default App;
 
 
-	   </main>
 
-	  
-	  </>
-	);}
 
-export default App
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
